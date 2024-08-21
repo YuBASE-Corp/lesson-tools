@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript配列操作学習サイト（説明付き）</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            display: flex;
+            margin: 0 auto;
+        }
+        .sidebar {
+            width: 300px;
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            cursor: pointer;
+            padding: 5px 0;
+        }
+        li:hover {
+            color: #ddd;
+        }
+        li span {
+            display: block;
+            font-size: 0.8em;
+            color: #aaa;
+        }
+        pre {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 10px;
+            white-space: pre-wrap;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e7f3fe;
+            border: 1px solid #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>配列メソッド</h2>
+            <ul id="array-methods">
+                <li data-method="push">push()
+                    <span>末尾に要素を追加</span>
+                </li>
+                <li data-method="unshift">unshift()
+                    <span>先頭に要素を追加</span>
+                </li>
+                <li data-method="pop">pop()
+                    <span>末尾の要素を削除して返す</span>
+                </li>
+                <li data-method="shift">shift()
+                    <span>先頭の要素を削除して返す</span>
+                </li>
+                <li data-method="slice">slice()
+                    <span>配列の一部を抽出して新しい配列を作成</span>
+                </li>
+                <li data-method="splice">splice()
+                    <span>要素の追加・削除・置換</span>
+                </li>
+                <li data-method="forEach">forEach()
+                    <span>各要素に対して関数を実行</span>
+                </li>
+                <li data-method="map">map()
+                    <span>各要素を変換して新しい配列を作成</span>
+                </li>
+                <li data-method="filter">filter()
+                    <span>条件に合う要素で新しい配列を作成</span>
+                </li>
+                <li data-method="reduce">reduce()
+                    <span>配列を単一の値に縮小</span>
+                </li>
+                <li data-method="find">find()
+                    <span>条件に合う最初の要素を返す</span>
+                </li>
+                <li data-method="some">some()
+                    <span>少なくとも1つの要素が条件を満たすか</span>
+                </li>
+                <li data-method="every">every()
+                    <span>すべての要素が条件を満たすか</span>
+                </li>
+                <li data-method="includes">includes()
+                    <span>特定の要素が含まれているか</span>
+                </li>
+                <li data-method="indexOf">indexOf()
+                    <span>指定された要素の最初のインデックスを返す</span>
+                </li>
+                <li data-method="concat">concat()
+                    <span>複数の配列を結合</span>
+                </li>
+            </ul>
+        </div>
+        <div class="content">
+            <h1>JavaScript配列操作学習サイト（説明付き）</h1>
+            <div id="demo-area">
+                <h2>デモ</h2>
+                <div id="demo-content"></div>
+                <div id="result"></div>
+            </div>
+            <div id="code-area">
+                <h2>サンプルコード</h2>
+                <pre><code id="sample-code"></code></pre>
+                <button id="copy-button">コードをコピー</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const methodExamples = {
+            forEach: {
+                html: '<button onclick="runForEach()">forEach()を実行</button>',
+                js: `
+const fruits = ['apple', 'banana', 'cherry'];
+fruits.forEach((fruit, index) => {
+    console.log(\`\${index}: \${fruit}\`);
+});`
+            },
+            map: {
+                html: '<button onclick="runMap()">map()を実行</button>',
+                js: `
+const numbers = [1, 2, 3, 4, 5];
+const squaredNumbers = numbers.map(num => num * num);
+console.log(squaredNumbers);`
+            },
+            filter: {
+                html: '<button onclick="runFilter()">filter()を実行</button>',
+                js: `
+const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const evenNumbers = numbers.filter(num => num % 2 === 0);
+console.log(evenNumbers);`
+            },
+            reduce: {
+                html: '<button onclick="runReduce()">reduce()を実行</button>',
+                js: `
+const numbers = [1, 2, 3, 4, 5];
+const sum = numbers.reduce((acc, cur) => acc + cur, 0);
+console.log(sum);`
+            },
+            find: {
+                html: '<button onclick="runFind()">find()を実行</button>',
+                js: `
+const fruits = ['apple', 'banana', 'cherry', 'date'];
+const found = fruits.find(fruit => fruit.startsWith('c'));
+console.log(found);`
+            },
+            some: {
+                html: '<button onclick="runSome()">some()を実行</button>',
+                js: `
+const numbers = [1, 2, 3, 4, 5];
+const hasEven = numbers.some(num => num % 2 === 0);
+console.log(hasEven);`
+            },
+            every: {
+                html: '<button onclick="runEvery()">every()を実行</button>',
+                js: `
+const numbers = [2, 4, 6, 8, 10];
+const allEven = numbers.every(num => num % 2 === 0);
+console.log(allEven);`
+            },
+            includes: {
+                html: '<button onclick="runIncludes()">includes()を実行</button>',
+                js: `
+const fruits = ['apple', 'banana', 'cherry'];
+console.log(fruits.includes('banana'));
+console.log(fruits.includes('grape'));`
+            },
+            indexOf: {
+                html: '<button onclick="runIndexOf()">indexOf()を実行</button>',
+                js: `
+const fruits = ['apple', 'banana', 'cherry', 'date'];
+console.log(fruits.indexOf('cherry'));
+console.log(fruits.indexOf('grape'));`
+            },
+            concat: {
+                html: '<button onclick="runConcat()">concat()を実行</button>',
+                js: `
+const arr1 = [1, 2, 3];
+const arr2 = [4, 5, 6];
+const newArr = arr1.concat(arr2);
+console.log(newArr);`
+            },
+            push: {
+                html: '<button onclick="runPush()">push()を実行</button>',
+                js: `
+const fruits = ['apple', 'banana'];
+fruits.push('cherry');
+console.log(fruits);`
+            },
+            unshift: {
+                html: '<button onclick="runUnshift()">unshift()を実行</button>',
+                js: `
+const fruits = ['banana', 'cherry'];
+fruits.unshift('apple');
+console.log(fruits);`
+            },
+            pop: {
+                html: '<button onclick="runPop()">pop()を実行</button>',
+                js: `
+const fruits = ['apple', 'banana', 'cherry'];
+const lastFruit = fruits.pop();
+console.log(lastFruit);
+console.log(fruits);`
+            },
+            shift: {
+                html: '<button onclick="runShift()">shift()を実行</button>',
+                js: `
+const fruits = ['apple', 'banana', 'cherry'];
+const firstFruit = fruits.shift();
+console.log(firstFruit);
+console.log(fruits);`
+            },
+            slice: {
+                html: '<button onclick="runSlice()">slice()を実行</button>',
+                js: `
+const fruits = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
+const slicedFruits = fruits.slice(1, 4);
+console.log(slicedFruits);
+console.log(fruits);`
+            },
+            splice: {
+                html: '<button onclick="runSplice()">splice()を実行</button>',
+                js: `
+const fruits = ['apple', 'banana', 'cherry', 'date'];
+const removedFruits = fruits.splice(1, 2, 'grape', 'kiwi');
+console.log(removedFruits);
+console.log(fruits);`
+            }
+        };
+
+        function showExample(name) {
+            const example = methodExamples[name];
+            document.getElementById('demo-content').innerHTML = example.html;
+            document.getElementById('sample-code').textContent = example.js;
+            document.getElementById('result').innerHTML = '';
+        }
+
+        document.getElementById('array-methods').addEventListener('click', function(e) {
+            if (e.target.tagName === 'LI') {
+                const name = e.target.getAttribute('data-method');
+                showExample(name);
+            }
+        });
+
+        document.getElementById('copy-button').addEventListener('click', function() {
+            const codeText = document.getElementById('sample-code').textContent;
+            navigator.clipboard.writeText(codeText).then(function() {
+                alert('コードがクリップボードにコピーされました！');
+            }, function(err) {
+                console.error('コピーに失敗しました: ', err);
+            });
+        });
+
+        // 各メソッドの実行関数
+        function runForEach() {
+            const fruits = ['apple', 'banana', 'cherry'];
+            let result = '';
+            fruits.forEach((fruit, index) => {
+                result += `${index}: ${fruit}<br>`;
+            });
+            document.getElementById('result').innerHTML = result;
+        }
+
+        function runMap() {
+            const numbers = [1, 2, 3, 4, 5];
+            const squaredNumbers = numbers.map(num => num * num);
+            document.getElementById('result').innerHTML = 'Squared numbers: ' + squaredNumbers.join(', ');
+        }
+
+        function runFilter() {
+            const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+            const evenNumbers = numbers.filter(num => num % 2 === 0);
+            document.getElementById('result').innerHTML = 'Even numbers: ' + evenNumbers.join(', ');
+        }
+
+        function runReduce() {
+            const numbers = [1, 2, 3, 4, 5];
+            const sum = numbers.reduce((acc, cur) => acc + cur, 0);
+            document.getElementById('result').innerHTML = 'Sum: ' + sum;
+        }
+
+        function runFind() {
+            const fruits = ['apple', 'banana', 'cherry', 'date'];
+            const found = fruits.find(fruit => fruit.startsWith('c'));
+            document.getElementById('result').innerHTML = 'Found fruit: ' + found;
+        }
+
+        function runSome() {
+            const numbers = [1, 2, 3, 4, 5];
+            const hasEven = numbers.some(num => num % 2 === 0);
+            document.getElementById('result').innerHTML = 'Has even number: ' + hasEven;
+        }
+
+        function runEvery() {
+            const numbers = [2, 4, 6, 8, 10];
+            const allEven = numbers.every(num => num % 2 === 0);
+            document.getElementById('result').innerHTML = 'All numbers are even: ' + allEven;
+        }
+
+        function runIncludes() {
+            const fruits = ['apple', 'banana', 'cherry'];
+            const result = `Includes 'banana': ${fruits.includes('banana')}<br>Includes 'grape': ${fruits.includes('grape')}`;
+            document.getElementById('result').innerHTML = result;
+        }
+
+        function runIndexOf() {
+            const fruits = ['apple', 'banana', 'cherry', 'date'];
+            const result = `Index of 'cherry': ${fruits.indexOf('cherry')}<br>Index of 'grape': ${fruits.indexOf('grape')}`;
+            document.getElementById('result').innerHTML = result;
+        }
+
+        function runConcat() {
+            const arr1 = [1, 2, 3];
+            const arr2 = [4, 5, 6];
+            const newArr = arr1.concat(arr2);
+            document.getElementById('result').innerHTML = 'Concatenated array: ' + newArr.join(', ');
+        }
+
+        function runPush() {
+            const fruits = ['apple', 'banana'];
+            fruits.push('cherry');
+            document.getElementById('result').innerHTML = 'After push: ' + fruits.join(', ');
+        }
+
+        function runUnshift() {
+            const fruits = ['banana', 'cherry'];
+            fruits.unshift('apple');
+            document.getElementById('result').innerHTML = 'After unshift: ' + fruits.join(', ');
+        }
+
+        function runPop() {
+            const fruits = ['apple', 'banana', 'cherry'];
+            const lastFruit = fruits.pop();
+            document.getElementById('result').innerHTML = `Popped fruit: ${lastFruit}<br>Remaining fruits: ${fruits.join(', ')}`;
+        }
+
+        function runShift() {
+            const fruits = ['apple', 'banana', 'cherry'];
+            const firstFruit = fruits.shift();
+            document.getElementById('result').innerHTML = `Shifted fruit: ${firstFruit}<br>Remaining fruits: ${fruits.join(', ')}`;
+        }
+
+        function runSlice() {
+            const fruits = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
+            const slicedFruits = fruits.slice(1, 4);
+            document.getElementById('result').innerHTML = `Sliced fruits: ${slicedFruits.join(', ')}<br>Original array: ${fruits.join(', ')}`;
+        }
+
+        function runSplice() {
+            const fruits = ['apple', 'banana', 'cherry', 'date'];
+            const removedFruits = fruits.splice(1, 2, 'grape', 'kiwi');
+            document.getElementById('result').innerHTML = `Removed fruits: ${removedFruits.join(', ')}<br>Modified array: ${fruits.join(', ')}`;
+        }
+    </script>
+    </script>
+</body>
+</html>

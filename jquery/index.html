@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>jQuery学習サイト</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            display: flex;
+            margin: 0 auto;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            cursor: pointer;
+            padding: 5px 0;
+        }
+        li:hover {
+            color: #ddd;
+        }
+        li span {
+            display: block;
+            font-size: 0.8em;
+            color: #aaa;
+        }
+        pre {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 10px;
+            white-space: pre-wrap;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        .highlight {
+            background-color: yellow;
+            font-weight: bold;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>メソッド</h2>
+            <ul id="methods">
+                <li data-method="hide">hide()
+                    <span>要素を非表示にする</span>
+                </li>
+                <li data-method="show">show()
+                    <span>非表示の要素を表示する</span>
+                </li>
+                <li data-method="toggle">toggle()
+                    <span>要素の表示/非表示を切り替える</span>
+                </li>
+                <li data-method="addClass">addClass()
+                    <span>クラスを追加する</span>
+                </li>
+                <li data-method="removeClass">removeClass()
+                    <span>クラスを削除する</span>
+                </li>
+                <li data-method="toggleClass">toggleClass()
+                    <span>クラスの追加/削除を切り替える</span>
+                </li>
+                <li data-method="attr">attr()
+                    <span>属性を取得または設定する</span>
+                </li>
+                <li data-method="removeAttr">removeAttr()
+                    <span>属性を削除する</span>
+                </li>
+                <li data-method="css">css()
+                    <span>CSSプロパティを取得または設定する</span>
+                </li>
+                <li data-method="html">html()
+                    <span>HTML内容を取得または設定する</span>
+                </li>
+                <li data-method="text">text()
+                    <span>テキスト内容を取得または設定する</span>
+                </li>
+                <li data-method="val">val()
+                    <span>フォーム要素の値を取得または設定する</span>
+                </li>
+                <li data-method="append">append()
+                    <span>要素の最後に内容を追加する</span>
+                </li>
+                <li data-method="prepend">prepend()
+                    <span>要素の先頭に内容を追加する</span>
+                </li>
+                <li data-method="after">after()
+                    <span>選択した要素の後に内容を挿入する</span>
+                </li>
+                <li data-method="before">before()
+                    <span>選択した要素の前に内容を挿入する</span>
+                </li>
+                <li data-method="remove">remove()
+                    <span>要素を削除する</span>
+                </li>
+                <li data-method="empty">empty()
+                    <span>要素の中身を空にする</span>
+                </li>
+            </ul>
+            <h2>イベント</h2>
+            <ul id="events">
+                <li data-event="click">click
+                    <span>クリックされたときに発生</span>
+                </li>
+                <li data-event="hover">hover
+                    <span>マウスが要素上に乗ったときと離れたときに発生</span>
+                </li>
+                <li data-event="submit">submit
+                    <span>フォームが送信されたときに発生</span>
+                </li>
+                <li data-event="keyup">keyup
+                    <span>キーが離されたときに発生</span>
+                </li>
+            </ul>
+        </div>
+        <div class="content">
+            <h1>jQuery学習サイト</h1>
+            <div id="demo-area">
+                <h2>デモ</h2>
+                <div id="demo-content"></div>
+            </div>
+            <div id="code-area">
+                <h2>サンプルコード</h2>
+                <pre><code id="sample-code"></code></pre>
+                <button id="copy-button">コードをコピー</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { methodExamples, eventExamples } from './examples.js';
+
+        $(document).ready(function() {
+            function showExample(type, name) {
+                const example = type === 'method' ? methodExamples[name] : eventExamples[name];
+                $('#demo-content').html(example.html);
+                $('#sample-code').text(example.js);
+                eval(example.js);
+            }
+
+            $('#methods li, #events li').on('click', function() {
+                const type = $(this).parent().attr('id') === 'methods' ? 'method' : 'event';
+                const name = $(this).data(type);
+                showExample(type, name);
+            });
+
+            $('#copy-button').on('click', function() {
+                const codeText = $('#sample-code').text();
+                navigator.clipboard.writeText(codeText).then(function() {
+                    alert('コードがクリップボードにコピーされました！');
+                }, function(err) {
+                    console.error('コピーに失敗しました: ', err);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
