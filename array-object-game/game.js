@@ -16,6 +16,19 @@ let timer;
 let countdownTimer;
 let questionHistory = [];
 
+let globalCounter = 0;
+
+function generateUniqueRandomNumbers(count, max) {
+    const numbers = new Set();
+    while(numbers.size < count) {
+        const randomNum = Math.floor(Math.random() * max);
+        const uniqueNum = globalCounter * (max * 10) + randomNum;
+        numbers.add(uniqueNum);
+        globalCounter++;
+    }
+    return Array.from(numbers);
+}
+
 function startGame() {
     currentMode = document.getElementById('mode').value;
     localStorage.setItem('selectedMode', currentMode); // モードをlocalStorageに保存
@@ -24,10 +37,8 @@ function startGame() {
     // シンタックスハイライトを初期化
     hljs.highlightAll();
 
-    // タイムアタックモード時は回答欄をクリア
-    if (timeAttackMode) {
-        document.getElementById('answer').textContent = '';
-    }
+    // 回答欄をクリア
+    document.getElementById('answer').textContent = '';
     
     // 答えにフォーカス
     focusAnswer();
@@ -38,35 +49,30 @@ function generateQuestion() {
     currentVariableName = getRandomVariableName();
     if (currentMode === 'array') {
         currentQuestion = generateArrayQuestion();
-        questionText = `配列から値を取り出して！: <pre><code class="language-javascript">let ${currentVariableName} = ${JSON.stringify(currentQuestion.array)}</code></pre>`;
+        questionText = `配列から<span class="highlight">${currentQuestion.answer}</span>を取り出して！ <pre><code class="language-javascript">let ${currentVariableName} = ${JSON.stringify(currentQuestion.array)}</code></pre>`;
     } else if (currentMode === 'object') {
         currentQuestion = generateObjectQuestion();
-        questionText = `オブジェクトから値を取り出して！: <pre><code class="language-javascript">let ${currentVariableName} = ${JSON.stringify(currentQuestion.object, null, 2).replace(`"${currentQuestion.answer}"`, `"<span class="highlight">${currentQuestion.answer}</span>"`)}</code></pre>`;
+        questionText = `オブジェクトから<span class="highlight">${currentQuestion.answer}</span>を取り出して！ <pre><code class="language-javascript">let ${currentVariableName} = ${JSON.stringify(currentQuestion.object, null, 2)}</code></pre>`;
     } else if (currentMode === 'mixed') {
         currentQuestion = generateMixedQuestion();
-        questionText = `配列とオブジェクトの組み合わせから値を取り出して！: <pre><code class="language-javascript">let ${currentVariableName} = ${JSON.stringify(currentQuestion.mixed, null, 2).replace(`"${currentQuestion.answer}"`, `"<span class="highlight">${currentQuestion.answer}</span>"`)}</code></pre>`;
+        questionText = `配列とオブジェクトの組み合わせから<span class="highlight">${currentQuestion.answer}</span>を取り出して！ <pre><code class="language-javascript">let ${currentVariableName} = ${JSON.stringify(currentQuestion.mixed, null, 2)}</code></pre>`;
     }
-    document.getElementById('question').innerHTML = `<p class="mb-2">${questionText}</p><p class="font-bold">取り出す値: ${currentQuestion.answer}</p>`;
+    document.getElementById('question').innerHTML = `<p class="mb-2">${questionText}</p>`;
     document.getElementById('result').innerText = '';
-    
-    // シンタックスハイラを適用
+
+    // シンタックスハイライトを適用
     document.querySelectorAll('pre code').forEach((block) => {
         hljs.highlightBlock(block);
     });
+
+    // 出題箇所をハイライト
+    document.querySelector('pre code').innerHTML = document.querySelector('pre code').innerHTML.replace(`${currentQuestion.answer}`, `<span class="highlight">${currentQuestion.answer}</span>`);
 
     questionHistory.push({
         question: questionText,
         correctAnswer: currentQuestion.answer,
         userAnswer: null
     });
-}
-
-function generateUniqueRandomNumbers(count, max) {
-    const numbers = new Set();
-    while(numbers.size < count) {
-        numbers.add(Math.floor(Math.random() * max));
-    }
-    return Array.from(numbers);
 }
 
 function generateArrayQuestion() {
@@ -191,12 +197,14 @@ function updateSuggestions() {
 }
 
 function getSuggestions(prefix) {
-    const allSuggestions = [currentVariableName];
+    let allSuggestions = [currentVariableName];
     if (currentQuestion.mixed || currentQuestion.object || currentQuestion.array) {
         const obj = currentQuestion.mixed || currentQuestion.object || currentQuestion.array;
         function addKeys(obj, prefix = '') {
             if (Array.isArray(obj)) {
-                allSuggestions.push(prefix + '[]');
+                obj.forEach((item) => {
+                    addKeys(item, '');
+                });
             } else if (typeof obj === 'object' && obj !== null) {
                 for (const key in obj) {
                     allSuggestions.push(prefix + key);
@@ -206,6 +214,8 @@ function getSuggestions(prefix) {
         }
         addKeys(obj);
     }
+    // allSuggestionsを重複なしにする
+    allSuggestions = [...new Set(allSuggestions)];
     return allSuggestions.filter(suggestion => suggestion.toLowerCase().startsWith(prefix.toLowerCase()));
 }
 
