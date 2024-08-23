@@ -38,13 +38,13 @@ function generateQuestion() {
     currentVariableName = getRandomVariableName();
     if (currentMode === 'array') {
         currentQuestion = generateArrayQuestion();
-        questionText = `配列から値を��り出して！: <pre><code class="language-javascript">let ${currentVariableName} = ${JSON.stringify(currentQuestion.array)}</code></pre>`;
+        questionText = `配列から値を取り出して！: <pre><code class="language-javascript">let ${currentVariableName} = ${JSON.stringify(currentQuestion.array)}</code></pre>`;
     } else if (currentMode === 'object') {
         currentQuestion = generateObjectQuestion();
-        questionText = `オブジェクトから値を取り出して！: <pre><code class="language-javascript">let ${currentVariableName} = ${JSON.stringify(currentQuestion.object, null, 2)}</code></pre>`;
+        questionText = `オブジェクトから値を取り出して！: <pre><code class="language-javascript">let ${currentVariableName} = ${JSON.stringify(currentQuestion.object, null, 2).replace(`"${currentQuestion.answer}"`, `"<span class="highlight">${currentQuestion.answer}</span>"`)}</code></pre>`;
     } else if (currentMode === 'mixed') {
         currentQuestion = generateMixedQuestion();
-        questionText = `配列とオブジェクトの組み合わせから値を取り出して！: <pre><code class="language-javascript">let ${currentVariableName} = ${JSON.stringify(currentQuestion.mixed, null, 2)}</code></pre>`;
+        questionText = `配列とオブジェクトの組み合わせから値を取り出して！: <pre><code class="language-javascript">let ${currentVariableName} = ${JSON.stringify(currentQuestion.mixed, null, 2).replace(`"${currentQuestion.answer}"`, `"<span class="highlight">${currentQuestion.answer}</span>"`)}</code></pre>`;
     }
     document.getElementById('question').innerHTML = `<p class="mb-2">${questionText}</p><p class="font-bold">取り出す値: ${currentQuestion.answer}</p>`;
     document.getElementById('result').innerText = '';
@@ -191,7 +191,21 @@ function updateSuggestions() {
 }
 
 function getSuggestions(prefix) {
-    const allSuggestions = [currentVariableName, ...Object.keys(currentQuestion.mixed || currentQuestion.object || {})];
+    const allSuggestions = [currentVariableName];
+    if (currentQuestion.mixed || currentQuestion.object || currentQuestion.array) {
+        const obj = currentQuestion.mixed || currentQuestion.object || currentQuestion.array;
+        function addKeys(obj, prefix = '') {
+            if (Array.isArray(obj)) {
+                allSuggestions.push(prefix + '[]');
+            } else if (typeof obj === 'object' && obj !== null) {
+                for (const key in obj) {
+                    allSuggestions.push(prefix + key);
+                    addKeys(obj[key], prefix + key + '.');
+                }
+            }
+        }
+        addKeys(obj);
+    }
     return allSuggestions.filter(suggestion => suggestion.toLowerCase().startsWith(prefix.toLowerCase()));
 }
 
