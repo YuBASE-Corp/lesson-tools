@@ -15,6 +15,7 @@ let timeLeft = 60;
 let timer;
 let countdownTimer;
 let questionHistory = [];
+let timeoutId;
 
 let globalCounter = 0;
 
@@ -68,9 +69,11 @@ function generateQuestion() {
     // 出題箇所をハイライト
     document.querySelector('pre code').innerHTML = document.querySelector('pre code').innerHTML.replace(`${currentQuestion.answer}`, `<span class="highlight">${currentQuestion.answer}</span>`);
 
+    const correctAnswer = generateCorrectAnswer();
     questionHistory.push({
         question: questionText,
-        correctAnswer: currentQuestion.answer,
+        correctAnswer: correctAnswer,
+        answer: currentQuestion.answer,
         userAnswer: null
     });
 }
@@ -129,8 +132,7 @@ function generateMixedQuestion() {
     }
 }
 
-function checkAnswer() {
-    const userAnswer = document.getElementById('answer').textContent.trim();
+function generateCorrectAnswer() {
     let correctAnswer = '';
     if (currentMode === 'array') {
         correctAnswer = `${currentVariableName}[${currentQuestion.index}]`;
@@ -148,25 +150,36 @@ function checkAnswer() {
             }
         }
     }
+    return correctAnswer;
+}
+
+function checkAnswer() {
+    const userAnswer = document.getElementById('answer').textContent.trim();
+    const correctAnswer = generateCorrectAnswer();
     
     const isCorrect = userAnswer === correctAnswer || (correctAnswer.includes(' または ') && correctAnswer.split(' または ').includes(userAnswer));
     
     if (isCorrect) {
         document.getElementById('result').innerHTML = '<p class="text-green-600 font-bold">正解！</p>';
-        if (timeAttackMode) correctCount++;
+        if (timeAttackMode) {
+            correctCount++;
+        } else {
+            document.getElementById('result').innerHTML += '<button id="nextQuestionButton" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2">次の問題</button>';
+            document.getElementById('nextQuestionButton').addEventListener('click', startGame);
+        }
     } else {
         document.getElementById('result').innerHTML = `<p class="text-red-600 font-bold">不正解。</p><p>正解は: ${correctAnswer}</p>`;
         if (timeAttackMode) incorrectCount++;
     }
 
-    questionHistory[questionHistory.length - 1].userAnswer = userAnswer;
-
-    if (timeAttackMode) {
-        setTimeout(() => {
+    if(timeAttackMode) {
+        timeoutId = setTimeout(() => {
             document.getElementById('result').innerHTML = '';
             startGame();
         }, 1000);
     }
+
+    questionHistory[questionHistory.length - 1].userAnswer = userAnswer;
 }
 
 let currentSuggestions = [];
@@ -322,6 +335,7 @@ function startTimeAttack() {
     document.getElementById('timer').textContent = '';
     
     disableButtons();
+    disableMode();
     
     countdownTimer = setInterval(function() {
         if (countdown > 0) {
@@ -358,6 +372,7 @@ function endTimeAttack() {
     timeAttackMode = false;
     clearInterval(timer);
     clearInterval(countdownTimer);
+    clearTimeout(timeoutId);
     let resultHTML = `
         <h2 class="text-2xl font-bold mb-4">タイムアタック結果</h2>
         <p class="text-xl">正解数: ${correctCount}</p>
@@ -381,6 +396,7 @@ function endTimeAttack() {
     document.getElementById('timer').textContent = '';
     questionHistory = []; // 履歴をリセット
     enableButtons();
+    enableMode();
 }
 
 // ページロード時にモードを読み込む
@@ -405,4 +421,12 @@ function enableButtons() {
         button.disabled = false;
         button.classList.remove('opacity-50', 'cursor-not-allowed');
     });
+}
+
+function disableMode() {
+    document.getElementById('mode').disabled = true;
+}
+
+function enableMode() {
+    document.getElementById('mode').disabled = false;
 }
