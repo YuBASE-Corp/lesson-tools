@@ -269,6 +269,8 @@ function startTimeAttack() {
     document.getElementById('answer').textContent = '';
     document.getElementById('timer').textContent = '';
     
+    disableButtons();
+    
     countdownTimer = setInterval(function() {
         if (countdown > 0) {
             document.getElementById('question').innerHTML = `
@@ -326,6 +328,7 @@ function endTimeAttack() {
     document.getElementById('result').innerHTML = '';
     document.getElementById('timer').textContent = '';
     questionHistory = []; // 履歴をリセット
+    enableButtons();
 }
 
 // ページロード時にモードを読み込む
@@ -335,3 +338,19 @@ window.addEventListener('load', function() {
         document.getElementById('mode').value = savedMode;
     }
 });
+
+function disableButtons() {
+    const buttons = document.querySelectorAll('#singleQuestionButton, #timeAttackButton');
+    buttons.forEach(button => {
+        button.disabled = true;
+        button.classList.add('opacity-50', 'cursor-not-allowed');
+    });
+}
+
+function enableButtons() {
+    const buttons = document.querySelectorAll('#singleQuestionButton, #timeAttackButton');
+    buttons.forEach(button => {
+        button.disabled = false;
+        button.classList.remove('opacity-50', 'cursor-not-allowed');
+    });
+}
