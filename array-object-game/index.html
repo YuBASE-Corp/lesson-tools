@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配列・オブジェクトゲーム</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/javascript.min.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">配列・オブジェクトゲーム</h1>
+        <hr class="my-6">
+        <div id="timer" class="text-xl font-bold text-red-600 mb-4"></div>
+        <div class="grid grid-cols-3 gap-4">
+            <div class="mb-6 col-span-1">
+                <div class="mb-6">
+                    <label for="mode" class="block text-gray-700 mb-2 hidden">モードを選択:</label>
+                    <select id="mode" class="w-full p-2 border border-gray-300 rounded-md mb-2">
+                        <option value="array">配列モード</option>
+                        <option value="object">オブジェクトモード</option>
+                        <option value="mixed">配列&オブジェクトモード</option>
+                    </select>
+                    <button onclick="startGame()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mr-2">
+                        単問出題
+                    </button>
+                    <button onclick="startTimeAttack()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+                        タイムアタック
+                    </button>
+                </div>
+                <div class="mb-6">
+                    <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded-r shadow-md">
+                        <h2 class="text-xl font-bold mb-2 text-yellow-800">使い方</h2>
+                        <ol class="list-decimal list-outside pl-8 space-y-2 text-yellow-900">
+                            <li class="pl-2">モードを選択：配列、オブジェクト、または両方</li>
+                            <li class="pl-2">「単問出題」または「タイムアタック」を選択</li>
+                            <li class="pl-2">表示された問題に対する正しいアクセス方法を入力</li>
+                            <li class="pl-2">「送信」ボタンをクリックまたはCtrl+Enter（Mac: Cmd+Enter）で回答</li>
+                            <li class="pl-2">タイムアタックモード：60秒間でできるだけ多くの問題に挑戦！</li>
+                        </ol>
+                        <p class="mt-4 text-yellow-800 italic">ヒント：入力中に候補が表示されます。Tab or Enterキーで選択できます。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-2">
+                <div class="mb-6">
+                    <div id="question" class="bg-white p-6 rounded-lg shadow-md mb-6"></div>
+                    <div id="result" class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded"></div>
+                </div>
+                <div class="mb-6">
+                    <label for="answer" class="block text-gray-700 mb-2">答え:</label>
+                    <div id="answer" contenteditable="true" class="w-full p-2 border border-gray-300 rounded-md mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" tabindex="0"></div>
+                    <div id="suggestions" class="hidden bg-white border border-gray-300 rounded-md shadow-lg"></div>
+                    <button onclick="checkAnswer()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded" title="Windows: Ctrl+Enter, Mac: Cmd+Enter でも送信できます">
+                        送信 (Ctrl+Enter / Cmd+Enter)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
