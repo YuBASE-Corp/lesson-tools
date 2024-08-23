@@ -38,7 +38,7 @@ function generateQuestion() {
     currentVariableName = getRandomVariableName();
     if (currentMode === 'array') {
         currentQuestion = generateArrayQuestion();
-        questionText = `配列から値を取り出して！: <pre><code class="language-javascript">let ${currentVariableName} = ${JSON.stringify(currentQuestion.array)}</code></pre>`;
+        questionText = `配列から値を��り出して！: <pre><code class="language-javascript">let ${currentVariableName} = ${JSON.stringify(currentQuestion.array)}</code></pre>`;
     } else if (currentMode === 'object') {
         currentQuestion = generateObjectQuestion();
         questionText = `オブジェクトから値を取り出して！: <pre><code class="language-javascript">let ${currentVariableName} = ${JSON.stringify(currentQuestion.object, null, 2)}</code></pre>`;
@@ -77,9 +77,9 @@ function generateArrayQuestion() {
 }
 
 function generateObjectQuestion() {
-    const keys = ['a', 'b', 'c', 'd', 'e'];
-    const objectLength = Math.floor(Math.random() * 2) + 2; // 2から3のキー数
-    const selectedKeys = keys.slice(0, objectLength);
+    const keys = ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig', 'grape', 'honeydew', 'kiwi', 'lemon', 'mango', 'nectarine', 'orange', 'papaya', 'quince'];
+    const objectLength = Math.floor(Math.random() * 4) + 3; // 3から6のキー数
+    const selectedKeys = keys.sort(() => 0.5 - Math.random()).slice(0, objectLength);
     const values = generateUniqueRandomNumbers(objectLength, 100);
     const object = {};
     selectedKeys.forEach((key, index) => {
@@ -129,13 +129,17 @@ function checkAnswer() {
     if (currentMode === 'array') {
         correctAnswer = `${currentVariableName}[${currentQuestion.index}]`;
     } else if (currentMode === 'object') {
-        correctAnswer = `${currentVariableName}.${currentQuestion.key}` + (currentQuestion.key.includes('-') ? ` または ${currentVariableName}['${currentQuestion.key}']` : '');
+        correctAnswer = `${currentVariableName}.${currentQuestion.key}` + (currentQuestion.key && currentQuestion.key.includes('-') ? ` または ${currentVariableName}['${currentQuestion.key}']` : '');
     } else if (currentMode === 'mixed') {
-        if (Array.isArray(currentQuestion.mixed[currentQuestion.key])) {
-            correctAnswer = `${currentVariableName}.${currentQuestion.key}[${currentQuestion.index}]`;
+        if (Array.isArray(currentQuestion.mixed)) {
+            correctAnswer = `${currentVariableName}[${currentQuestion.arrayIndex}].${currentQuestion.objectKey}`;
         } else {
-            correctAnswer = `${currentVariableName}.${currentQuestion.key}.${currentQuestion.subKey}` + 
-                (currentQuestion.subKey.includes('-') ? ` または ${currentVariableName}.${currentQuestion.key}['${currentQuestion.subKey}']` : '');
+            const key = currentQuestion.objectKey;
+            if (Array.isArray(currentQuestion.mixed[key])) {
+                correctAnswer = `${currentVariableName}.${key}[${currentQuestion.arrayIndex}]`;
+            } else {
+                correctAnswer = `${currentVariableName}.${key}`;
+            }
         }
     }
     
@@ -191,7 +195,31 @@ function getSuggestions(prefix) {
     return allSuggestions.filter(suggestion => suggestion.toLowerCase().startsWith(prefix.toLowerCase()));
 }
 
-document.getElementById('answer').addEventListener('input', updateSuggestions);
+document.getElementById('answer').addEventListener('input', function(e) {
+    updateSuggestions();
+    if (e.inputType === 'insertText' && e.data === '[') {
+        e.preventDefault();
+        const selection = window.getSelection();
+        const range = selection.getRangeAt(0);
+        
+        // 直前の文字が'['の場合、それを削除
+        if (range.startOffset > 0) {
+            const prevChar = range.startContainer.textContent[range.startOffset - 1];
+            if (prevChar === '[') {
+                range.setStart(range.startContainer, range.startOffset - 1);
+                range.deleteContents();
+            }
+        }
+        
+        const newNode = document.createTextNode('[]');
+        range.insertNode(newNode);
+        range.setStart(newNode, 1);
+        range.setEnd(newNode, 1);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+});
+
 document.getElementById('answer').addEventListener('keydown', function(e) {
     const suggestionsElement = document.getElementById('suggestions');
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
