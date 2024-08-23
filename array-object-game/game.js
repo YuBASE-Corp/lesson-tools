@@ -18,6 +18,7 @@ let questionHistory = [];
 
 function startGame() {
     currentMode = document.getElementById('mode').value;
+    localStorage.setItem('selectedMode', currentMode); // モードをlocalStorageに保存
     generateQuestion();
     
     // シンタックスハイライトを初期化
@@ -69,15 +70,15 @@ function generateUniqueRandomNumbers(count, max) {
 }
 
 function generateArrayQuestion() {
-    const length = Math.floor(Math.random() * 5) + 3; // 3から7の要素数
+    const length = Math.floor(Math.random() * 2) + 2; // 2から3の要素数
     const array = generateUniqueRandomNumbers(length, 100); // 0から99のランダムな数値
     const index = Math.floor(Math.random() * array.length);
     return { array, index, answer: array[index] };
 }
 
 function generateObjectQuestion() {
-    const keys = ['firstName', 'lastName', 'age', 'email', 'phoneNumber', 'address', 'city', 'country', 'occupation', 'hobby'];
-    const objectLength = Math.floor(Math.random() * 3) + 3; // 3から5のキー数
+    const keys = ['a', 'b', 'c', 'd', 'e'];
+    const objectLength = Math.floor(Math.random() * 2) + 2; // 2から3のキー数
     const selectedKeys = keys.slice(0, objectLength);
     const values = generateUniqueRandomNumbers(objectLength, 100);
     const object = {};
@@ -89,44 +90,36 @@ function generateObjectQuestion() {
 }
 
 function generateMixedQuestion() {
-    const keys = ['arr', 'obj', 'data', 'info'];
-    const mixed = {};
-    const usedValues = new Set();
+    const isArrayOutside = Math.random() < 0.5;
+    let mixed;
+    let answer;
 
-    keys.forEach(key => {
-        if (Math.random() < 0.5) {
-            // 配列を生成
-            const length = Math.floor(Math.random() * 3) + 2; // 2から4の要素数
-            mixed[key] = generateUniqueRandomNumbers(length, 100);
-            mixed[key].forEach(value => usedValues.add(value));
-        } else {
-            // オブジェクトを生成
-            const subKeys = ['x', 'y', 'z'];
-            const obj = {};
-            subKeys.forEach(subKey => {
-                if (Math.random() < 0.7) { // 70%の確率でサブキーを追加
-                    let value;
-                    do {
-                        value = Math.floor(Math.random() * 100);
-                    } while (usedValues.has(value));
-                    obj[subKey] = value;
-                    usedValues.add(value);
-                }
-            });
-            mixed[key] = obj;
+    if (isArrayOutside) {
+        const length = Math.floor(Math.random() * 2) + 2; // 2から3の要素数
+        mixed = [];
+        for (let i = 0; i < length; i++) {
+            mixed.push(generateObjectQuestion().object);
         }
-    });
-
-    const selectedKeys = Object.keys(mixed);
-    const key = selectedKeys[Math.floor(Math.random() * selectedKeys.length)];
-    
-    if (Array.isArray(mixed[key])) {
-        const index = Math.floor(Math.random() * mixed[key].length);
-        return { mixed, key, index, answer: mixed[key][index] };
+        const arrayIndex = Math.floor(Math.random() * mixed.length);
+        const objectKey = Object.keys(mixed[arrayIndex])[Math.floor(Math.random() * Object.keys(mixed[arrayIndex]).length)];
+        answer = mixed[arrayIndex][objectKey];
+        return { mixed, arrayIndex, objectKey, answer };
     } else {
-        const subKeys = Object.keys(mixed[key]);
-        const subKey = subKeys[Math.floor(Math.random() * subKeys.length)];
-        return { mixed, key, subKey, answer: mixed[key][subKey] };
+        mixed = generateObjectQuestion().object;
+        Object.keys(mixed).forEach(key => {
+            if (Math.random() < 0.5) {
+                mixed[key] = generateArrayQuestion().array;
+            }
+        });
+        const objectKey = Object.keys(mixed)[Math.floor(Math.random() * Object.keys(mixed).length)];
+        if (Array.isArray(mixed[objectKey])) {
+            const arrayIndex = Math.floor(Math.random() * mixed[objectKey].length);
+            answer = mixed[objectKey][arrayIndex];
+            return { mixed, objectKey, arrayIndex, answer };
+        } else {
+            answer = mixed[objectKey];
+            return { mixed, objectKey, answer };
+        }
     }
 }
 
@@ -271,15 +264,22 @@ function startTimeAttack() {
     
     currentMode = document.getElementById('mode').value;
     
-    document.getElementById('question').innerHTML = `<h2 class="text-3xl font-bold text-center">準備してください</h2>`;
+    document.getElementById('question').innerHTML = `<h2 class="text-3xl font-bold text-center">準備してください...</h2>`;
     document.getElementById('result').innerHTML = '';
     document.getElementById('answer').textContent = '';
+    document.getElementById('timer').textContent = '';
     
     countdownTimer = setInterval(function() {
-        document.getElementById('timer').textContent = `開始まで: ${countdown}秒`;
-        countdown--;
-        
-        if (countdown < 0) {
+        if (countdown > 0) {
+            document.getElementById('question').innerHTML = `
+                <h2 class="text-3xl font-bold text-center">準備してください...</h2>
+                <p class="text-6xl font-bold text-center mt-4">${countdown}</p>
+            `;
+        } else if (countdown === 0) {
+            document.getElementById('question').innerHTML = `
+                <h2 class="text-3xl font-bold text-center">スタート！</h2>
+            `;
+        } else {
             clearInterval(countdownTimer);
             document.getElementById('timer').textContent = `残り時間: ${timeLeft}秒`;
             startGame();
@@ -292,6 +292,7 @@ function startTimeAttack() {
                 }
             }, 1000);
         }
+        countdown--;
     }, 1000);
 }
 
@@ -326,3 +327,11 @@ function endTimeAttack() {
     document.getElementById('timer').textContent = '';
     questionHistory = []; // 履歴をリセット
 }
+
+// ページロード時にモードを読み込む
+window.addEventListener('load', function() {
+    const savedMode = localStorage.getItem('selectedMode');
+    if (savedMode) {
+        document.getElementById('mode').value = savedMode;
+    }
+});
