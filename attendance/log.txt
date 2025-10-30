@@ -1,0 +1,7 @@
+2024-09-17 22:29:35 入力データ: {"studentId":"123455","qrcode":"2qyXqBPr4T"}
+2024-09-17 22:29:35 トークン: Array
+2024-09-17 22:35:13 入力データ: {"studentId":"123455","qrcode":"cHdD5gvZtI"}
+2024-09-17 22:35:13 トークン: array (
+  0 => '6YMkMKmMLs',
+  1 => 'cHdD5gvZtI',
+)

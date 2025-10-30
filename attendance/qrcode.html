@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>QRコード</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+<div id="qrcode"></div>
+<script type="text/javascript">
+// ランダムな文字列を生成する関数
+function generateRandomString(length) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  // update-token.phpを叩いてtokenを保存する
+  fetch('update-token.php', {
+    method: 'POST',
+    body: JSON.stringify({ token: result })
+  });
+  return result;
+}
+
+const qrcode = new QRCode(document.getElementById("qrcode"), generateRandomString(10));
+
+// 10秒ごとにQRコードを更新
+setInterval(function() {
+  qrcode.clear();
+  qrcode.makeCode(generateRandomString(10));
+}, 10000);
+</script>
+</body>
+</html>

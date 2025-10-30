@@ -5,7 +5,7 @@ function getRandomVariableName() {
 }
 
 let currentQuestion = {};
-let currentMode = 'array';
+let currentMode = 'mixed';
 let currentVariableName = '';
 
 let timeAttackMode = false;

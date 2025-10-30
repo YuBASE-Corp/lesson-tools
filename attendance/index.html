@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>出席確認システム</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
+        <div class="p-8">
+            <h1 class="text-2xl font-bold mb-4">出席確認</h1>
+            <input type="text" id="studentId" placeholder="学籍番号を入力" class="w-full p-2 mb-4 border rounded">
+            <div id="qr-reader" class="mb-4 hidden"></div>
+        </div>
+    </div>
+
+<script>
+    const studentIdInput = document.getElementById('studentId');
+    const qrReader = document.getElementById('qr-reader');
+
+    studentIdInput.addEventListener('input', function() {
+        if (this.value.length >= 6) {
+            qrReader.classList.remove('hidden');
+        } else {
+            qrReader.classList.add('hidden');
+        }
+    });
+
+    function onScanSuccess(decodedText, decodedResult) {
+
+        // 学籍番号が空の場合はエラーメッセージを表示
+        if (!studentIdInput.value) {
+            alert('学籍番号を入力してください。');
+            return;
+        }
+        // attendanceDateに入っている日付が本日の場合はエラーメッセージを表示
+        if (localStorage.getItem('attendanceDate') && new Date(localStorage.getItem('attendanceDate')).toDateString() === new Date().toDateString()) {
+            alert('本日は既に出席を確認しています。');
+            // qrの読み込みを停止する
+            html5QrcodeScanner.clear();
+            return;
+        }
+
+        html5QrcodeScanner.clear();
+        const studentId = studentIdInput.value;
+
+        console.log(studentId, decodedText)
+
+        // 学籍番号をローカルストレージに保存
+        localStorage.setItem('studentId', studentId);
+
+        // ローディングを表示する
+        const loading = document.createElement('div');
+        loading.classList.add('loading');
+        loading.textContent = '登録中...';
+        document.body.appendChild(loading);
+
+        // store.phpを叩いて学籍番号とQRコードトークンを送信
+        fetch('store.php', {
+            method: 'POST',
+            body: JSON.stringify({ studentId: studentId, qrcode: decodedText })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // statusがerrorの場合はエラーメッセージを表示
+            if (data.status === 'error') {
+                alert(data.message);
+                return;
+            }
+
+            console.log(data);
+            // 出欠を実施した日時をローカルストレージに保存
+            localStorage.setItem('attendanceDate', new Date().toISOString());
+            alert(`学籍番号${studentId}の出席を確認しました。`)
+            // ローディングを非表示にする
+            document.body.removeChild(loading);
+        })
+        .catch(error => {
+            alert('システムエラーが発生しました。 Error: ' + error)
+            console.error('Error:', error);
+            // ローディングを非表示にする
+            document.body.removeChild(loading);
+        });
+        
+    }
+
+    let html5QrcodeScanner = new Html5QrcodeScanner(
+        "qr-reader",
+        { 
+            fps: 10, 
+            qrbox: 250,
+            rememberLastUsedCamera: true,
+            showTorchButtonIfSupported: true,
+            supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+        }
+    );
+    html5QrcodeScanner.render(onScanSuccess);
+
+    // ローカルストレージに studentId が存在した場合、inputにセットする
+    const savedStudentId = localStorage.getItem('studentId');
+    if (savedStudentId) {
+        studentIdInput.value = savedStudentId;
+        qrReader.classList.remove('hidden');
+    }
+
+
+
+
+    // GAS連携の方法: https://www.alta.co.jp/blog/post-8196/
+</script>
+</body>
+</html>

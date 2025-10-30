@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主な抵抗カラーコード</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .resistor {
+            width: 180px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .band {
+            width: 25%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex justify-center items-center min-h-screen p-4">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-xl w-full">
+        <h1 class="text-2xl font-bold text-center mb-6">主な抵抗カラーコード一覧表</h1>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-gray-500">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 ">抵抗値</th>
+                        <th scope="col" class="px-6 py-3">カラーコード</th>
+                    </tr>
+                </thead>
+                <tbody id="resistorTable">
+                    <!-- JavaScript で動的に生成されます -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const resistors = [
+            { value: '100Ω', band1: 'brown', band2: 'black', multiplier: 'brown', tolerance: 'gold' },
+            { value: '220Ω', band1: 'red', band2: 'red', multiplier: 'brown', tolerance: 'gold' },
+            { value: '330Ω', band1: 'orange', band2: 'orange', multiplier: 'brown', tolerance: 'gold' },
+            { value: '470Ω', band1: 'yellow', band2: 'violet', multiplier: 'brown', tolerance: 'gold' },
+            { value: '1kΩ', band1: 'brown', band2: 'black', multiplier: 'red', tolerance: 'gold' },
+            { value: '2.2kΩ', band1: 'red', band2: 'red', multiplier: 'red', tolerance: 'gold' },
+            { value: '4.7kΩ', band1: 'yellow', band2: 'violet', multiplier: 'red', tolerance: 'gold' },
+            { value: '10kΩ', band1: 'brown', band2: 'black', multiplier: 'orange', tolerance: 'gold' },
+            { value: '47kΩ', band1: 'yellow', band2: 'violet', multiplier: 'orange', tolerance: 'gold' },
+            { value: '100kΩ', band1: 'brown', band2: 'black', multiplier: 'yellow', tolerance: 'gold' },
+        ];
+
+        const colorClasses = {
+            black: 'bg-black',
+            brown: 'bg-amber-800',
+            red: 'bg-red-600',
+            orange: 'bg-orange-500',
+            yellow: 'bg-yellow-400',
+            green: 'bg-green-500',
+            blue: 'bg-blue-600',
+            violet: 'bg-purple-600',
+            gray: 'bg-gray-500',
+            white: 'bg-white',
+            gold: 'bg-yellow-600',
+            silver: 'bg-gray-300'
+        };
+
+        function populateTable() {
+            const table = document.getElementById('resistorTable');
+            resistors.forEach(resistor => {
+                const row = table.insertRow();
+                row.innerHTML = `
+                    <td class="px-6 py-4">${resistor.value}</td>
+                    <td class="px-6 py-4">
+                        <div class="resistor gap-1 rounded-full">
+                            <div class="rounded-l-full band ${colorClasses[resistor.band1]}">${getColorKanji(resistor.band1)}</div>
+                            <div class="band ${colorClasses[resistor.band2]}">${getColorKanji(resistor.band2)}</div>
+                            <div class="band ${colorClasses[resistor.multiplier]}">${getColorKanji(resistor.multiplier)}</div>
+                            <div class="rounded-r-full band ${colorClasses[resistor.tolerance]}">${getColorKanji(resistor.tolerance)}</div>
+                        </div>
+                    </td>
+                `;
+            });
+        }
+
+        function getColorKanji(color) {
+            const colorKanji = {
+                black: '黒',
+                brown: '茶',
+                red: '赤',
+                orange: '橙',
+                yellow: '黄',
+                green: '緑',
+                blue: '青',
+                violet: '紫',
+                gray: '灰',
+                white: '白',
+                gold: '金',
+                silver: '銀'
+            };
+            return colorKanji[color] || color;
+        }
+
+        window.onload = populateTable;
+    </script>
+</body>
+</html>
